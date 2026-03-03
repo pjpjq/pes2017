@@ -1,11 +1,77 @@
-# pes2017
-some python script used for PES2017 My Club mode player and scout
+# PES 2017 MyClub 辅助工具
 
-1. finished a crawler to download all player and scout database from http://pesdb.net/pes2017/
-> there are 9901 players and 1187 players can be 100% assigned.
+这是一个专为 PES 2017 MyClub 模式设计的球探合成辅助工具。它能根据 PESDB (http://pesdb.net/pes2017/) 的数据，帮助你管理库存中的球探卡，并找到合成心仪球员的最佳路径。
 
-2. make auto search based on your scout
-> find all 100% players
-> find all players which only need 1 more scout
+## 核心功能
 
-3. some other functions
+1.  **数据采集**：自动爬取 PESDB 的球员和球探映射关系，存入本地 SQLite 数据库。
+2.  **库存管理**：记录你拥有的球探卡和已有的球员。
+3.  **合成方案分析**：
+    *   **可合谁？**：根据现有球探卡，实时推荐你能 100% 合成的最高评分球员。
+    *   **怎么合？**：输入目标球员名，分析所有可能的合成路径，并指出你目前缺少哪张卡。
+4.  **排除规则**：自动考虑“已拥有球员不重复合成”的机制，通过先合成同组合低级球员来提高合成指定球员的几率。
+
+## 快速开始
+
+### 1. 环境准备
+
+本项目推荐使用 [uv](https://github.com/astral-sh/uv) 管理 Python 环境和依赖。
+
+```powershell
+# 克隆项目后，初始化并同步依赖
+uv sync
+```
+
+### 2. 初始化数据库与采集
+
+首次使用需要抓取球探 ID 映射和部分球员数据：
+
+```powershell
+# 获取球探 ID 与名称映射表
+uv run pes_setup.py
+
+# 爬取 PESDB 100% 几率合成方案（默认前几页，可修改脚本调整范围）
+uv run pes_spider.py
+```
+
+### 3. 库存管理
+
+运行交互式命令来录入你目前拥有的球探卡名称：
+
+```powershell
+# 进入库存管理模式
+uv run pes_tool.py inv
+
+# 选项说明：
+# 1. 查看当前球探卡 (如 LWF, FC BARCELONA 等)
+# 2. 添加球探卡
+# 3. 删除球探卡
+# 4. 查看/添加已拥有球员 (防止重复合成)
+```
+
+### 4. 方案查询
+
+```powershell
+# 推荐当前库存能合出的最高评分球员
+uv run pes_tool.py
+
+# 搜索特定球员的合成路径
+uv run pes_tool.py RONALDO
+uv run pes_tool.py BALE
+```
+
+## 文件说明
+
+- `pes_setup.py`: 数据库初始化及基础映射抓取。
+- `pes_spider.py`: 球员详情及合成方案爬虫，具备自动学习未知 ID 的功能。
+- `pes_tool.py`: 主工具程序，负责库存管理、查询和推荐逻辑。
+- `my_inventory.json`: 存储你的球探卡和已有球员数据。
+- `pes2017.db`: SQLite 数据库文件。
+
+## 高级用法
+
+- **扩大抓取范围**：修改 `pes_spider.py` 中的 `range(1, 10)`，可以抓取更多页面的球员（建议每次少量抓取，以免被封）。
+- **精准匹配**：在录入球探卡时，请尽量使用与 PESDB 一致的名称（如 "MD WHITE" 代表皇马）。
+
+---
+*注：本项目仅供 PES 2017 玩家技术研究与交流使用。*
